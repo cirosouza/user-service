@@ -4,6 +4,12 @@ import br.edu.infnet.user_service.exception.ResourceNotFoundException;
 import br.edu.infnet.user_service.model.User;
 import br.edu.infnet.user_service.payload.DetailPayload;
 import br.edu.infnet.user_service.service.implementation.UserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -25,6 +31,13 @@ public class UserController {
         this.userService = userService;
     }
 
+    @Operation(summary = "Retorna uma lista de usuários")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Ok",
+                    content = {@Content(mediaType = "application/json",
+                            array = @ArraySchema(schema = @Schema(implementation = User.class)))}),
+            @ApiResponse(responseCode = "404", description = "Not Found")
+    })
     @GetMapping()
     public ResponseEntity<List<User>> getAllUsers() {
         List<User> users = userService.getAll();
@@ -37,6 +50,12 @@ public class UserController {
         }
     }
 
+    @Operation(summary = "Retorna um usuário pelo seu ID")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Usuário encontrado com sucesso", content = {
+                    @Content(mediaType = "application/json", schema = @Schema(implementation = User.class)) }),
+            @ApiResponse(responseCode = "404", description = "Usuário não encontrado", content = {
+                    @Content(mediaType = "application/json", schema = @Schema(implementation = DetailPayload.class)) }) })
     @GetMapping("/{id}")
     public ResponseEntity<?> getUserById(@PathVariable int id) {
         try {
@@ -49,6 +68,11 @@ public class UserController {
         }
     }
 
+    @Operation(summary = "Cria um usuário")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Post publicado com sucesso", content = {
+                    @Content(mediaType = "application/json", schema = @Schema(implementation = User.class)) })
+    })
     @PostMapping()
     public ResponseEntity<User> addUser(@RequestBody User user) {
         User newUser = userService.create(user);
@@ -68,6 +92,13 @@ public class UserController {
         }
     }
 
+    @Operation(summary = "Deleta um usuário")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Deletado com sucesso!", content = {
+                    @Content(mediaType = "application/json", schema = @Schema(implementation = DetailPayload.class)) }),
+            @ApiResponse(responseCode = "404", description = "Usuário não encontrado!", content = {
+                    @Content(mediaType = "application/json", schema = @Schema(implementation = DetailPayload.class)) })
+    })
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteUser(@PathVariable int id) {
         try {
